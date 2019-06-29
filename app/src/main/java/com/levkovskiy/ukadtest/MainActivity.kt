@@ -5,6 +5,8 @@ import android.icu.text.SimpleDateFormat
 import android.net.ParseException
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.levkovskiy.ukadtest.network.factory.ApiSuccessResponse
@@ -16,8 +18,8 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import android.widget.ArrayAdapter
-
-
+import com.levkovskiy.ukadtest.utils.DateUtils
+import android.widget.Spinner
 
 
 class MainActivity : AppCompatActivity() {
@@ -39,19 +41,46 @@ class MainActivity : AppCompatActivity() {
             if (it.isNotEmpty())
                 getQuartetChart()
         })
+        val list = ArrayList<String>()
+        list.add("Quartet")
+        list.add("Month")
+        list.add("Week")
+        val dataAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item, list
+        )
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = dataAdapter
 
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View,
+                position: Int,
+                id: Long
+            ) {
+                when (position) {
+                    0 -> getQuartetChart()
+                    1 -> getMonthChart()
+                    2 -> getWeekChart()
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+
+            }
+        }
     }
 
     private fun setupChart(dataList: List<GraphData>): ArrayList<LineDataSet>? {
 
         val dataSets: ArrayList<LineDataSet> = ArrayList()
-
         val valueSet1 = ArrayList<Entry>()
+        if (dataList.isEmpty())
+            return dataSets
         dataList.forEachIndexed { index, graphData ->
             valueSet1.add(Entry(graphData.Steps.toFloat(), index))
         }
-
-
         val barDataSet1 = LineDataSet(valueSet1, "")
         barDataSet1.color = Color.rgb(0, 155, 0)
         dataSets.add(barDataSet1)
@@ -66,38 +95,29 @@ class MainActivity : AppCompatActivity() {
     private fun getXAxisValues(dataList: List<GraphData>): ArrayList<String> {
         val xAxis = ArrayList<String>()
         dataList.forEach {
-            xAxis.add(formatDate(it.StartDate)!!)
+            xAxis.add(DateUtils.formatDate(it.StartDate)!!)
         }
         return xAxis
     }
 
-    private fun formatDate(sourceDate: String): String? {
-        val fromUser = SimpleDateFormat("yyyy-MM-dd")
-        val myFormat = SimpleDateFormat("dd MMM")
-
-        try {
-            return myFormat.format(fromUser.parse(sourceDate))
-        } catch (e: ParseException) {
-            e.printStackTrace()
-        }
-        return null
-    }
-
     private fun getQuartetChart() {
-        viewModel.getChartData(map).observe(this, Observer {
-            setupChart((it as ApiSuccessResponse).body.GraphData)
+        viewModel.getDataPerQuartet(map).observe(this, Observer {
+            if (it is ApiSuccessResponse)
+                setupChart(it.body.GraphData)
         })
     }
 
     private fun getMonthChart() {
-        viewModel.getChartData(map).observe(this, Observer {
-            println(it.toString())
+        viewModel.getDataPerMonth(map).observe(this, Observer {
+            if (it is ApiSuccessResponse)
+                setupChart(it.body.GraphData)
         })
     }
 
     private fun getWeekChart() {
-        viewModel.getChartData(map).observe(this, Observer {
-            println(it.toString())
+        viewModel.getDataPerWeek(map).observe(this, Observer {
+            if (it is ApiSuccessResponse)
+                setupChart(it.body.GraphData)
         })
     }
 }

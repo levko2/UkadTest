@@ -12,5 +12,7 @@ class MainViewModel : ViewModel() {
 
     fun login() = apiService.login("Augustus", "5E065CDCC904FA398B8B0DB3AA268E9F", 1)
 
-    fun getChartData(headers: Map<String, String>) = apiService.getDataPerQuartet(headers)
+    fun getDataPerQuartet(headers: Map<String, String>) = apiService.getDataPerQuartet(headers)
+    fun getDataPerMonth(headers: Map<String, String>) = apiService.getDataPerMonth(headers)
+    fun getDataPerWeek(headers: Map<String, String>) = apiService.getDataPerWeek(headers)
 }

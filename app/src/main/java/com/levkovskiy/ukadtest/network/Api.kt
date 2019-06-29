@@ -18,4 +18,10 @@ interface Api {
 
     @GET("Trackers/Steps/WithGoal/Quarter")
     fun getDataPerQuartet(@HeaderMap headers: Map<String, String>): LiveData<ApiResponse<ChartResponse>>
+
+    @GET("Trackers/Steps/WithGoal/Month")
+    fun getDataPerMonth(@HeaderMap headers: Map<String, String>): LiveData<ApiResponse<ChartResponse>>
+
+    @GET("Trackers/Steps/WithGoal/Week")
+    fun getDataPerWeek(@HeaderMap headers: Map<String, String>): LiveData<ApiResponse<ChartResponse>>
 }
